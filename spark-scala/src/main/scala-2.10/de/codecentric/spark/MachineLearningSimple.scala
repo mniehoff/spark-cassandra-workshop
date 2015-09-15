@@ -17,7 +17,7 @@ object MachineLearningSimple {
     val sc = new SparkContext(conf)
 
   // get ratings and map to mllib Rating case class
-	val data = sc.cassandraTable[RatingRaw]("movie","ratings_by_movie_4m")
+	val data = sc.cassandraTable[RatingRaw]("movie","ratings_by_movie")
 	val ratings = data.map{case RatingRaw(user,movie,rating,_) => Rating(user.toInt,movie.toInt,rating-2.5)}.cache
 
 	val rank = 20
