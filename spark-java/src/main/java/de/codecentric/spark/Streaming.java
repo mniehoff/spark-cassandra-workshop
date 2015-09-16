@@ -24,7 +24,7 @@ public class Streaming {
 	public static void main(String[] args) {
 		Logger.getLogger("org.apache.spark").setLevel(Level.WARN);
 		Logger.getLogger("org.eclipse.jetty.server").setLevel(Level.OFF);
-		SparkConf conf = new SparkConf().set("spark.cassandra.connection.host", "127.0.0.1").setAppName("Streaming APP")
+		SparkConf conf = new SparkConf().set("spark.cassandra.connection.host", "127.0.0.1").setAppName("Streaming APP");
 		JavaSparkContext sc = new JavaSparkContext(conf);
 		JavaStreamingContext jsc = new JavaStreamingContext(sc, Durations.seconds(1));
 		JavaReceiverInputDStream<String> lines = jsc.socketTextStream("localhost", 9999);
