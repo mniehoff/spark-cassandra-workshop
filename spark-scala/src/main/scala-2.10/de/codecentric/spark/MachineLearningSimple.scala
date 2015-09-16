@@ -10,6 +10,9 @@ case class RatingRaw (userid:Long, movieid:Long, rating:Double, time: java.util.
 object MachineLearningSimple {
   def main(args: Array[String]) {
 
+    Logger.getLogger("org.apache.spark").setLevel(Level.WARN)
+    Logger.getLogger("org.eclipse.jetty.server").setLevel(Level.OFF)
+    
     //    Create Spark Context
     val conf = new SparkConf(true)
       .setAppName("Machine Learning Simple")

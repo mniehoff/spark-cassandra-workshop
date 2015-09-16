@@ -16,14 +16,18 @@ import java.util.Date
  */
 object Streaming {
   def main(args: Array[String]) {
-    val conf = new SparkConf().setMaster("local[2]").setAppName("NetworkWordCount").set("spark.cassandra.connection.host", "127.0.0.1")
+
+    Logger.getLogger("org.apache.spark").setLevel(Level.WARN)
+    Logger.getLogger("org.eclipse.jetty.server").setLevel(Level.OFF)
+
+    val conf = new SparkConf().setAppName("NetworkWordCount").set("spark.cassandra.connection.host", "127.0.0.1")
     val ssc = new StreamingContext(conf, Seconds(1))
     val lines = ssc.socketTextStream("localhost", 9999)
     val words = lines.flatMap(_.split(" "))
     val pairs = words.map(word => (word, 1))
     val wordCounts = pairs.reduceByKey(_ + _)
     val withDate = wordCounts.map(tuple => (new Date(), tuple._1, tuple._2))
-    withDate.foreachRDD(_.saveToCassandra("movie","count"))
+    withDate.foreachRDD(_.saveToCassandra("movie","streamcount"))
     ssc.start()
     ssc.awaitTermination()
   }
