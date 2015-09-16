@@ -17,44 +17,6 @@ object MachineLearningAdvanced extends App {
     Logger.getLogger("org.apache.spark").setLevel(Level.WARN)
     Logger.getLogger("org.eclipse.jetty.server").setLevel(Level.OFF)
 
-    //    Create Spark Context
-    val conf = new SparkConf(true)
-      .setAppName("Machine Learning Advanced")
-      .set("spark.cassandra.connection.host", "127.0.0.1")
-    val sc = new SparkContext(conf)
-
-    // Read Movies
-    val movies = sc.cassandraTable[Movie]("movie", "movies").map { case Movie(m, g, t, y) => (m, t) }.cache
-
-    // Read Ratings
-    val ratings = sc.cassandraTable[RatingRaw]("movie", "ratings_by_movie").cache
-
-    // Get some Random Movies and ask for a rating
-    // Random Movies are generated before.
-    val randomMovies = Random.shuffle(sc.textFile("moviesByTagCount").take(50).toList).slice(0, 10).map { x => (x.substring(1, x.indexOf(",")).toInt, x.substring(x.indexOf(",") + 1, x.length - 1)) }
-    val myMovies = elicitateRatings(randomMovies)
-    val myMoviesRDD = sc.parallelize(myMovies, 1)
-
-    // Get / Compute the Model
-    val model = getModel(sc, ratings, myMoviesRDD)
-
-    // Candidates = All Movies - my recommend movies
-    val myRatedMovieIds = myMovies.map(_.product).toSet
-    val candidates = movies.keys.filter(!myRatedMovieIds.contains(_))
-
-    // Get Recommendations
-    val recommendations = model.predict(candidates.map((0, _))).collect.sortBy(-_.rating).take(5)
-
-    // Print them
-    val movieMap = movies.collect.toMap
-    var i = 1
-    println("Movies recommended for you:")
-    recommendations.foreach { r =>
-      println("%2d".format(i) + ": " + movieMap(r.product))
-      i += 1
-    }
-
-    // if you want to do more stuff you should eventually clean up cached rdds with .unpersist(blocking = false)
   }
 
   /** Elicitate ratings from command-line. */
@@ -90,14 +52,5 @@ object MachineLearningAdvanced extends App {
     } else {
       ratings
     }
-  }
-
-  def getModel(sc: SparkContext, ratings: com.datastax.spark.connector.rdd.CassandraRDD[RatingRaw], userRatings: org.apache.spark.rdd.RDD[Rating]): MatrixFactorizationModel = {
-    println("generate new model")
-    val ratingsForTraining = ratings.map { case RatingRaw(user, movie, rating, _) => Rating(user.toInt, movie.toInt, rating - 2.5) }.union(userRatings)
-    val rank = 10
-    val numIterations = 20
-    val model = ALS.trainImplicit(ratingsForTraining, rank, numIterations)
-    return model
   }
 }
