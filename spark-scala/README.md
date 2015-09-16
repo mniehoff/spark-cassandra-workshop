@@ -7,7 +7,7 @@ To start:
 
 ```sbt assembly```
 
-```spark-submit --class <<ClassName>> target/scala-2.10/spark-scala-assembly-1.0.jar --master spark://<<your-fully-qualified-host:7077 ```
+```spark-submit --class  de.codecentric.spark.<<ClassName>> target/scala-2.10/spark-scala-assembly-1.0.jar --master spark://<<your-fully-qualified-host:7077 ```
 
 Requires a Spark Cluster with enough resources.
 
