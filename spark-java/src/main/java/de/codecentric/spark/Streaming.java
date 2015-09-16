@@ -19,7 +19,7 @@ import org.apache.spark.streaming.api.java.JavaStreamingContext;
 import scala.Tuple2;
 import scala.Tuple3;
 
-public class StreamingApp {
+public class Streaming {
 	@SuppressWarnings("resource")
 	public static void main(String[] args) {
 		Logger.getLogger("org.apache.spark").setLevel(Level.WARN);
@@ -34,7 +34,7 @@ public class StreamingApp {
 		JavaDStream<Tuple3<Date, String, Integer>> withDate = wordCounts
 				.map(tuple -> new Tuple3<>(new Date(), tuple._1, tuple._2));
 		withDate.foreachRDD(rdd -> {
-			javaFunctions(rdd).writerBuilder("movie", "count", mapTupleToRow(Date.class, String.class, Integer.class))
+			javaFunctions(rdd).writerBuilder("movie", "streamcount", mapTupleToRow(Date.class, String.class, Integer.class))
 					.saveToCassandra();
 			return null;
 		});
