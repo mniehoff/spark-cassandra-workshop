@@ -47,6 +47,17 @@ Caching for further requests
     years.max
     years.reduce((a,b) => a+b) / years.count.toFloat
 ```
+
+**Different genres**
+```scala
+    val genres = sc.broadcast(Set("Action","Drama"))
+    val sum = sc.accumulator(0)
+    movies.filter{case Movie(i,g,t,y) => g.intersect(genres.value).size > 0}.foreach(_ => sum += 1)
+    println(sum.value)
+
+    val genres = Set("Action","Drama")
+    movies.filter{case Movie(i,g,t,y) => g.intersect(genres).size > 0}.count
+```
 ## User
 
 **User with most Tags**
